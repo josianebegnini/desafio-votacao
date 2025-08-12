@@ -1,0 +1,67 @@
+package com.sicredi.desafio.services;
+
+import java.text.Normalizer;
+import java.util.List;
+import java.util.Optional;
+
+import org.hibernate.service.spi.ServiceException;
+import org.springframework.dao.DataAccessException;
+import org.springframework.stereotype.Service;
+
+import com.sicredi.desafio.models.Associado;
+import com.sicredi.desafio.repositories.AssociadoRepository;
+
+@Service
+public class AssociadoService {
+	private AssociadoRepository associadoRepo;
+	
+    public AssociadoService(AssociadoRepository associadoRepo) {
+        this.associadoRepo = associadoRepo;
+    }
+	public void criarAssociado(Associado associado){
+		try {
+			String cpfNormalizado = Normalizer.normalize(associado.getCpf(), Normalizer.Form.NFD)
+    				.replaceAll("\\p{M}", "");
+    		associado.setCpf(cpfNormalizado);
+			associadoRepo.save(associado);
+		} catch (DataAccessException e) {
+			throw new ServiceException("Erro ao criar associado: " + e.getMessage(), e);
+		}
+    }
+	public List<Associado> listarAssociados(){
+		try {
+			return associadoRepo.findAll();
+		} catch (DataAccessException e) {
+			throw new ServiceException("Erro ao listar associados: " + e.getMessage(), e);
+		}
+    }
+    public Optional<Associado> buscarPorId(Long id){
+    	try {
+    		return associadoRepo.findById(id);
+        } catch (DataAccessException e) {
+            throw new ServiceException("Erro ao buscar associado por ID: " + e.getMessage(), e);
+        }
+
+    }
+    public void atualizarAssociado(Associado associado){
+    	try {
+    		associadoRepo.save(associado);
+    	} catch (DataAccessException e) {
+    		throw new ServiceException("Erro ao atualizar associado: " + e.getMessage(), e);
+    	}
+    }
+    public void removerAssociadoPorId(Long id){
+    	try {
+    		associadoRepo.deleteById(id);
+    	} catch (DataAccessException e) {
+    		throw new ServiceException("Erro ao remover associado por ID: " + e.getMessage(), e);
+    	}
+    }
+    public Associado buscarPorCpf(String cpf){
+    	try {
+    		return associadoRepo.findByCpf(cpf).get(0);
+    	} catch (DataAccessException e) {
+    		throw new ServiceException("Erro ao buscar associado por CPF: " + e.getMessage(), e);
+    	}
+    }
+}
