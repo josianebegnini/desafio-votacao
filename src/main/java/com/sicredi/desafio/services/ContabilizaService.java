@@ -18,14 +18,15 @@ import com.sicredi.desafio.repositories.VotacaoRepository;
 @Service
 public class ContabilizaService {
 	private VotacaoRepository votacaoRepo;
-	private KafkaService kafkaService;
+	private KafkaProducerService produce;
+	private KafkaConsumerService consumer;
 	private VotacaoService votacaoService;
 
 	private static final Logger logger = LogManager.getLogger(ContabilizaService.class);
 	
-	 public ContabilizaService(VotacaoRepository votacaoRepo, VotacaoService votacaoService, KafkaService kafkaService) {
+	 public ContabilizaService(VotacaoRepository votacaoRepo, VotacaoService votacaoService, KafkaProducerService kafkaService) {
 	        this.votacaoRepo = votacaoRepo;
-	        this.kafkaService = kafkaService;
+	        this.produce = kafkaService;
 	        this.votacaoService = votacaoService;
 	    }
 
@@ -37,7 +38,7 @@ public class ContabilizaService {
 
 			ResultadoVotacao resultado = contabilizaVotosDaSessao(sessao);
 			
-			retorno = postaNaFilaResultadoVotacao(resultado);
+			retorno = publicaNoTopicoResultadoVotacao(resultado);
 
 			return retorno;
 		} catch (DataAccessException de) {
@@ -49,12 +50,12 @@ public class ContabilizaService {
 		return retorno;
 	}
 
-	private String postaNaFilaResultadoVotacao(ResultadoVotacao resultado) {
+	private String publicaNoTopicoResultadoVotacao(ResultadoVotacao resultado) {
 		String mensagem = montaMensagem(resultado);
-		kafkaService.enviaMensagem("resultado-votacao", mensagem);
+		produce.enviaMensagem("resultado-votacao", mensagem);
 		return mensagem;
 	}
-
+	
 	private ResultadoVotacao contabilizaVotosDaSessao(Sessao sessao) {
 		ResultadoVotacao resultado = new ResultadoVotacao();
 		List<Votacao> votos = votacaoRepo.findBySessaoIdSessao(sessao.getIdSessao());

@@ -25,7 +25,7 @@ import com.sicredi.desafio.models.Votacao;
 import com.sicredi.desafio.repositories.VotacaoRepository;
 import com.sicredi.desafio.services.AssociadoExternoService;
 import com.sicredi.desafio.services.AssociadoService;
-import com.sicredi.desafio.services.KafkaService;
+import com.sicredi.desafio.services.KafkaProducerService;
 import com.sicredi.desafio.services.SessaoService;
 import com.sicredi.desafio.services.VotacaoService;
 
@@ -45,7 +45,7 @@ public class VotacaoServiceTest {
     private AssociadoExternoService associadoExternoService;
     
     @Mock
-    private KafkaService kafkaService;
+    private KafkaProducerService kafkaService;
 
     @InjectMocks
     private VotacaoService votacaoService;
