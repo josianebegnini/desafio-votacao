@@ -21,16 +21,38 @@ services:
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
 
-  postgres:
+  postgres-dev:
     image: postgres:15
     environment:
-      POSTGRES_DB: votacao
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_dev_data:/var/lib/postgresql/data
+
+  postgres-test:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: ${POSTGRES_TEST_DB}
+      POSTGRES_USER: ${POSTGRES_TEST_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_TEST_PASSWORD}
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_test_data:/var/lib/postgresql/data
+
+  postgres-prod:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: ${POSTGRES_PROD_DB}
+      POSTGRES_USER: ${POSTGRES_PROD_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PROD_PASSWORD}
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_prod_data:/var/lib/postgresql/data
 
   springboot-api:
     build: .
@@ -39,12 +61,12 @@ services:
       - "8080:8080"
     depends_on:
       - kafka
-      - postgres
+      - postgres-dev   # altere para postgres-test ou postgres-prod conforme perfil
     environment:
       SERVER_ADDRESS: 0.0.0.0
       SERVER_PORT: 8080
       SPRING_KAFKA_BOOTSTRAP_SERVERS: "kafka:9092"
-      SPRING_PROFILES_ACTIVE: dev  # Altera para prod em produção
+      SPRING_PROFILES_ACTIVE: dev  # dev, test ou prod
 
   prometheus:
     image: prom/prometheus:latest
@@ -68,4 +90,6 @@ services:
       - prometheus
 
 volumes:
-  postgres_data:
+  postgres_dev_data:
+  postgres_test_data:
+  postgres_prod_data:
