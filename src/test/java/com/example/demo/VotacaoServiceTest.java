@@ -1,129 +1,108 @@
 package com.example.demo;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import com.sicredi.desafio.dto.request.VotacaoRequestDTO;
+import com.sicredi.desafio.dto.response.AssociadoResponseDTO;
+import com.sicredi.desafio.exceptions.VotacaoException;
+import com.sicredi.desafio.mapper.PautaMapper;
+import com.sicredi.desafio.mapper.SessaoMapper;
+import com.sicredi.desafio.model.Associado;
+import com.sicredi.desafio.model.Pauta;
+import com.sicredi.desafio.model.Sessao;
+import com.sicredi.desafio.service.AssociadoExternoService;
+import com.sicredi.desafio.service.VotacaoService;
 
-import java.time.LocalDateTime;
-import java.util.Optional;
-
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.test.context.ContextConfiguration;
 
-import com.sicredi.desafio.exceptions.VotacaoException;
-import com.sicredi.desafio.models.Associado;
-import com.sicredi.desafio.models.Sessao;
-import com.sicredi.desafio.models.Votacao;
-import com.sicredi.desafio.repositories.VotacaoRepository;
-import com.sicredi.desafio.services.AssociadoExternoService;
-import com.sicredi.desafio.services.AssociadoService;
-import com.sicredi.desafio.services.KafkaProducerService;
-import com.sicredi.desafio.services.SessaoService;
-import com.sicredi.desafio.services.VotacaoService;
+import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-@ContextConfiguration(classes = TestConfig.class)
-public class VotacaoServiceTest {
-
-    @Mock
-    private VotacaoRepository votacaoRepository;
-
-    @Mock
-    private SessaoService sessaoService;
-
-    @Mock
-    private AssociadoService associadoService;
-
-    @Mock
-    private AssociadoExternoService associadoExternoService;
-    
-    @Mock
-    private KafkaProducerService kafkaService;
+class VotacaoServiceTest {
 
     @InjectMocks
     private VotacaoService votacaoService;
 
-    
-	@BeforeEach
-    public void setup() {
-        MockitoAnnotations.initMocks(this);
-        votacaoService = new VotacaoService(votacaoRepository, sessaoService, associadoService, associadoExternoService);
-    }
-    
+    @Mock
+    private AssociadoExternoService associadoExternoService;
 
-    @Test
-    public void testVotar_SessaoAberta() throws Exception {
-        // Configurar comportamento simulado do objeto de sessão
-        Sessao sessao = new Sessao();
-        sessao.setIdSessao(1L);
-        sessao.setDtSessao(LocalDateTime.now());
-        sessao.setFechada(false);
-        when(sessaoService.buscarPorId(sessao.getIdSessao())).thenReturn(Optional.of(sessao));
+    @Mock
+    private SessaoMapper sessaoMapper;
 
-        // Configurar comportamento simulado do objeto associado
-        Associado associado = new Associado();
-        associado.setCpf("66972099099");
-        when(associadoService.buscarPorCpf(associado.getCpf())).thenReturn(associado);
+    @Mock
+    private PautaMapper pautaMapper;
 
-        // Configurar comportamento simulado do repositório de votação
-        when(votacaoRepository.save(any(Votacao.class))).thenReturn(new Votacao());
-
-        // Chamar o método que será testado
-        Votacao votacao = new Votacao();
-        votacao.setSessao(sessao);
-        votacao.setAssociado(associado);
-        votacaoService.votar(votacao);
-
-        // Verificar se o voto foi registrado corretamente
-        verify(votacaoRepository, times(1)).save(votacao);
+    @BeforeEach
+    void setup() {
+        MockitoAnnotations.openMocks(this);
     }
 
     @Test
-    public void testVotar_SessaoEncerrada() {
-        // Configurar comportamento simulado do objeto de sessão
-        Sessao sessao = new Sessao();
-        sessao.setIdSessao(1L);
-        sessao.setFechada(true);
-        sessao.setDtSessao(LocalDateTime.now());
-    	Votacao votacao = new Votacao();
-    	votacao.setVoto("Sim");
-    	votacao.setSessao(sessao);
-    	Associado associado = new Associado();
-    	associado.setCpf("66972099099");
-    	votacao.setAssociado(associado);
-        when(sessaoService.buscarPorId(sessao.getIdSessao())).thenReturn(Optional.of(sessao));
+    void testVotar_SessaoEncerrada() {
+        // Mock do serviço externo
+        when(associadoExternoService.chamaServicoExternoAssociadoPossuiPermissaoParaVotar(any(AssociadoResponseDTO.class)))
+                .thenReturn(true);
 
-        // Chamar o método que será testado e verificar se ele lança VotacaoEncerradaException
-        Assertions.assertThrows(VotacaoException.class, () -> {
-            votacaoService.votar(votacao);
+        // Criando DTO de requisição
+        VotacaoRequestDTO request = new VotacaoRequestDTO();
+        request.setSessaoId(1L);
+        request.setCpfAssociado("12345678900");
+        request.setVoto("SIM");
+
+        // Mock da sessão e da pauta
+        Pauta pauta = mock(Pauta.class);
+        when(pauta.getIdPauta()).thenReturn(1L);
+
+        Sessao sessao = mock(Sessao.class);
+        when(sessao.getPauta()).thenReturn(pauta);
+        when(sessao.isFechada()).thenReturn(true);
+
+        when(sessaoRepository.findById(1L)).thenReturn(Optional.of(sessao));
+
+        // Executando teste
+        assertThrows(VotacaoException.class, () -> {
+            votacaoService.votar(request);
         });
     }
     
     @Test
-    public void testVotar() throws Exception {
-        // Simulando uma votação válida
-    	Sessao sessao = new Sessao();
-    	sessao.setIdSessao(1L);
-    	sessao.setFechada(false);
-    	sessao.setDtSessao(LocalDateTime.now());
-    	Associado associado = new Associado();
-    	associado.setCpf("66972099099");
-    	Votacao votacao = new Votacao();
-    	votacao.setVoto("Sim");
-    	votacao.setSessao(sessao);
-    	votacao.setAssociado(associado);
+    void testVotar_SessaoAberta() {
+        Pauta pauta = mock(Pauta.class);
+        when(pauta.getIdPauta()).thenReturn(1L);
 
-        when(sessaoService.buscarPorId(anyLong())).thenReturn(Optional.of(sessao)); // Mocking sessão
-        when(associadoService.buscarPorCpf(anyString())).thenReturn(associado); // Associado válido
-        when(votacaoRepository.findByAssociadoCpf(anyString())).thenReturn(null); // Associado não votou ainda
+        Sessao sessao = mock(Sessao.class);
+        when(sessao.getPauta()).thenReturn(pauta);
+        when(sessao.isFechada()).thenReturn(false);
 
-        votacaoService.votar(votacao); // Verifica se a execução ocorre sem exceções
+        Associado associado = mock(Associado.class);
+
+        when(associadoExternoService.getAssociado(anyLong()))
+                .thenReturn(new AssociadoResponseDTO());
+
+        // Não deve lançar exceção
+        assertDoesNotThrow(() -> votacaoService.votar(sessao, associado));
+    }
+
+    @Test
+    void testVotar_AssociadoJaVotou() {
+        Pauta pauta = mock(Pauta.class);
+        when(pauta.getIdPauta()).thenReturn(1L);
+
+        Sessao sessao = mock(Sessao.class);
+        when(sessao.getPauta()).thenReturn(pauta);
+        when(sessao.isFechada()).thenReturn(false);
+
+        Associado associado = mock(Associado.class);
+
+        // Simula que o associado já votou
+        when(votacaoService.associadoJaVotou(sessao, associado))
+                .thenReturn(true);
+
+        // Testa exceção
+        assertThrows(VotacaoException.class, () -> {
+            votacaoService.votar(sessao, associado);
+        });
     }
 }
