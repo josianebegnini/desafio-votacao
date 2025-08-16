@@ -1,0 +1,9 @@
+databaseChangeLog:
+  - include:
+      file: db/changelog/changesets/0001_create_pauta_table.yaml
+  - include:
+      file: db/changelog/changesets/0002_create_sessao_table.yaml
+  - include:
+      file: db/changelog/changesets/0003_create_associado_table.yaml
+  - include:
+      file: db/changelog/changesets/0004_create_votacao_table.yaml

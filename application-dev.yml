@@ -21,6 +21,14 @@ spring:
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 10
+      
+  jpa:
+    hibernate:
+      ddl-auto: update  # cria/atualiza as tabelas automaticamente
+    show-sql: true      # opcional, para ver as queries geradas
+
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
 
 management:
   endpoints:
