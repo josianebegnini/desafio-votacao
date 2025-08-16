@@ -22,7 +22,7 @@ import com.sicredi.desafio.service.SessaoService;
 
 
 @RestController
-@RequestMapping("/api/sessao/")
+@RequestMapping("/api/v1/sessao/")
 public class SessaoRestController {
     private SessaoService sessaoService;
 

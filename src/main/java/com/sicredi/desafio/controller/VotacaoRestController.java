@@ -27,7 +27,7 @@ import com.sicredi.desafio.service.VotacaoService;
 import io.swagger.v3.oas.annotations.Operation;
 
 @RestController
-@RequestMapping("/api/votacao/")
+@RequestMapping("/api/v1/votacao/")
 public class VotacaoRestController {
 
     private VotacaoService votacaoService;
