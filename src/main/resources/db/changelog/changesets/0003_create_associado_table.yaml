@@ -1,0 +1,26 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0003_create_associado_table
+      author: josiane
+      changes:
+        - createTable:
+            tableName: associado
+            columns:
+              - column:
+                  name: id
+                  type: BIGSERIAL
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: nome
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: cpf
+                  type: VARCHAR(11)
+                  constraints:
+                    nullable: false
+                    unique: true

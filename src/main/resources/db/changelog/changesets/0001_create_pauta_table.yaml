@@ -1,0 +1,36 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0001_create_pauta_table
+      author: josiane
+      changes:
+        - createTable:
+            tableName: pauta
+            columns:
+              - column:
+                  name: id
+                  type: BIGSERIAL
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: titulo
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: descricao
+                  type: VARCHAR(1000)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: criacao
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: fechada
+                  type: BOOLEAN
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false

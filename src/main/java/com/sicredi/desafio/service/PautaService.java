@@ -48,10 +48,16 @@ public class PautaService {
             throw new ServiceException("Erro ao buscar pauta por ID: " + e.getMessage(), e);
         }
     }
-    public PautaResponseDTO atualizarPauta(PautaRequestDTO dto) {
+    public PautaResponseDTO atualizarPauta(Long id, PautaRequestDTO dto) {
         try {
-        	Pauta pauta = PautaMapper.toEntity(dto);
-            Pauta atualizado = repository.save(pauta);
+            Pauta pautaExistente = repository.findById(id)
+                .orElseThrow(() -> new ServiceException("Pauta não encontrada com ID: " + id));
+
+            pautaExistente.setTitulo(dto.getTitulo());
+            pautaExistente.setDescricao(dto.getDescricao());
+
+            Pauta atualizado = repository.save(pautaExistente);
+
             return PautaMapper.toDTO(atualizado);
         } catch (DataAccessException e) {
             throw new ServiceException("Erro ao atualizar pauta: " + e.getMessage(), e);

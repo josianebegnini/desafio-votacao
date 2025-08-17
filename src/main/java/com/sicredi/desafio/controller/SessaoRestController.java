@@ -1,8 +1,6 @@
 package com.sicredi.desafio.controller;
 
 import java.util.List;
-import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,59 +18,75 @@ import com.sicredi.desafio.dto.response.SessaoResponseDTO;
 import com.sicredi.desafio.model.Sessao;
 import com.sicredi.desafio.service.SessaoService;
 
+import io.swagger.v3.oas.annotations.Operation;
 
 @RestController
-@RequestMapping("/api/v1/sessao/")
+@RequestMapping("/api/v1/sessoes")
 public class SessaoRestController {
-    private SessaoService sessaoService;
 
-    @Autowired
+    private final SessaoService sessaoService;
+
     public SessaoRestController(SessaoService sessaoService) {
         this.sessaoService = sessaoService;
     }
 
-    @PostMapping(value = "abrirSessao", headers = "Accept=application/json")
-    public ResponseEntity<String> abrirSessao(@RequestBody SessaoRequestDTO sessaoDto) {
-    	try {
-    		sessaoService.criarSessao(sessaoDto);
-    		return ResponseEntity.ok("Sessao aberta com sucesso.");
-    	} catch (Exception e) {
-    		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao criar sessão: " + e.getMessage());
-    	}
+    @Operation(summary = "Abre uma nova sessão")
+    @PostMapping
+    public ResponseEntity<String> criarSessao(@RequestBody SessaoRequestDTO sessaoDto) {
+        try {
+            sessaoService.criarSessao(sessaoDto);
+            return ResponseEntity.status(HttpStatus.CREATED).body("Sessão aberta com sucesso.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Erro ao criar sessão: " + e.getMessage());
+        }
     }
-    @GetMapping(value = "listar", headers = "Accept=application/json")
+
+    @Operation(summary = "Lista todas as sessões")
+    @GetMapping
     public List<SessaoResponseDTO> listarSessoes() {
         return sessaoService.listarSessoes();
     }
-    
-    @GetMapping(value = "listarPorId/{id}", headers = "Accept=application/json")
-    public SessaoResponseDTO buscarPorId(@PathVariable Long id) {
-        return sessaoService.buscarPorId(id);
+
+    @Operation(summary = "Busca sessão por ID")
+    @GetMapping("/{id}")
+    public ResponseEntity<SessaoResponseDTO> buscarPorId(@PathVariable Long id) {
+        try {
+            SessaoResponseDTO sessao = sessaoService.buscarPorId(id);
+            return ResponseEntity.ok(sessao);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
     }
 
-    @PutMapping(value = "atualizar", headers = "Accept=application/json")
-    public ResponseEntity<String> atualizarSessao(@RequestBody Sessao sessao) {
-    	try {
-    		sessaoService.atualizarSessao(sessao);
-    		return ResponseEntity.ok("Sessao atualizada com sucesso.");
-    	} catch (Exception e) {
-    		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao atualizar sessão: " + e.getMessage());
-    	}
+    @Operation(summary = "Atualiza sessão existente")
+    @PutMapping("/{id}")
+    public ResponseEntity<String> atualizarSessao(@PathVariable Long id, @RequestBody Sessao sessao) {
+        try {
+            sessaoService.atualizarSessao(id, sessao);
+            return ResponseEntity.ok("Sessão atualizada com sucesso.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Erro ao atualizar sessão: " + e.getMessage());
+        }
     }
 
-    @DeleteMapping(value = "remover/{id}", headers = "Accept=application/json")
+    @Operation(summary = "Remove sessão pelo ID")
+    @DeleteMapping("/{id}")
     public ResponseEntity<String> removerSessao(@PathVariable Long id) {
-    	try {
-    		sessaoService.removerSessao(id);
-    		return ResponseEntity.ok("Sessao removida com sucesso.");
-    	} catch (Exception e) {
-    		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao remover sessão: " + e.getMessage());
-    	}
+        try {
+            sessaoService.removerSessao(id);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Erro ao remover sessão: " + e.getMessage());
+        }
     }
 
-    @GetMapping(value = "listarAbertas", headers = "Accept=application/json")
+    @Operation(summary = "Lista apenas sessões abertas")
+    @GetMapping("/abertas")
     public List<SessaoResponseDTO> listarAbertas() {
-    	return sessaoService.buscarAbertas();
+        return sessaoService.buscarAbertas();
     }
-
 }
+

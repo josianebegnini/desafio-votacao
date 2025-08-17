@@ -16,7 +16,7 @@ public class SessaoMapper {
 
     public static SessaoResponseDTO toDTO(Sessao sessao) {
         SessaoResponseDTO dto = new SessaoResponseDTO();
-        dto.setIdSessao(sessao.getIdSessao());
+        dto.setIdSessao(sessao.getId());
         dto.setNome(sessao.getNome());
         dto.setDescricao(sessao.getDescricao());
         dto.setDtSessao(sessao.getDtSessao());

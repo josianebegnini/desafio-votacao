@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import com.sicredi.desafio.dto.request.SessaoRequestDTO;
 import com.sicredi.desafio.dto.response.SessaoResponseDTO;
+import com.sicredi.desafio.exceptions.SessaoException;
 import com.sicredi.desafio.mapper.SessaoMapper;
 import com.sicredi.desafio.model.Pauta;
 import com.sicredi.desafio.model.Sessao;
@@ -61,10 +62,18 @@ public class SessaoService {
         }
     }
     
-    public SessaoResponseDTO atualizarSessao(Sessao sessao) {
+    public SessaoResponseDTO atualizarSessao(Long id, Sessao sessaoAtualizada) {
         try {
-        	Sessao atualizado = repository.save(sessao);
-            
+            Sessao sessaoExistente = repository.findById(id)
+                    .orElseThrow(() -> new SessaoException("Sessão não encontrada com ID: " + id));
+
+            // Atualiza os campos necessários
+            sessaoExistente.setDtSessao(sessaoAtualizada.getDtSessao());
+            sessaoExistente.setDuracao(sessaoAtualizada.getDuracao());
+            sessaoExistente.setFechada(sessaoAtualizada.isFechada());
+            sessaoExistente.setPauta(sessaoAtualizada.getPauta());
+
+            Sessao atualizado = repository.save(sessaoExistente);
             return SessaoMapper.toDTO(atualizado);
         } catch (DataAccessException e) {
             throw new ServiceException("Erro ao atualizar sessão: " + e.getMessage(), e);

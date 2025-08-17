@@ -1,24 +1,21 @@
 spring:
-  profiles: prod
+  profiles: test
 
 app:
   kafka:
-    topic: resultado-votacao-prod
+    topic: resultado-votacao-test
 
 spring:
   kafka:
     bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:kafka:9092}
-    consumer:
-      group-id: grupo-votacao-prod
-      auto-offset-reset: latest
 
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://postgres:5432/votacao}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5433/votacao_test}
     username: ${SPRING_DATASOURCE_USERNAME:user}
     password: ${SPRING_DATASOURCE_PASSWORD:pass}
     driver-class-name: org.postgresql.Driver
     hikari:
-      maximum-pool-size: 20
+      maximum-pool-size: 5
 
   jpa:
     hibernate:
@@ -27,6 +24,15 @@ spring:
 
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
+    clear-check-sums: true
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    display-request-duration: true
+    operations-sorter: alpha
 
 management:
   endpoints:
@@ -39,5 +45,5 @@ management:
         enabled: true
 
 server:
-  port: 8080
+  port: 8081
   address: 0.0.0.0

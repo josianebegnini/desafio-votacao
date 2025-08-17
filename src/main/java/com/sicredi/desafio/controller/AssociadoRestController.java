@@ -18,18 +18,21 @@ import com.sicredi.desafio.dto.request.AssociadoRequestDTO;
 import com.sicredi.desafio.dto.response.AssociadoResponseDTO;
 import com.sicredi.desafio.service.AssociadoService;
 
+import io.swagger.v3.oas.annotations.Operation;
+
 @RestController
 @RequestMapping("/api/v1/associados")
 public class AssociadoRestController {
 	
-    private AssociadoService associadoService;
+    private final AssociadoService associadoService;
 
     @Autowired
     public AssociadoRestController(AssociadoService associadoService) {
         this.associadoService = associadoService;
     }
 
-    @PostMapping(value = "cadastrar", headers = "Accept=application/json")
+    @Operation(summary = "Cadastra um novo associado")
+    @PostMapping
     public ResponseEntity<AssociadoResponseDTO> criarAssociado(@RequestBody AssociadoRequestDTO requestDTO) {
     	try {	
     		AssociadoResponseDTO responseDTO = associadoService.criarAssociado(requestDTO);
@@ -39,13 +42,15 @@ public class AssociadoRestController {
     	}
     }
 
-    @GetMapping(value = "listar", headers = "Accept=application/json")
+    @Operation(summary = "Lista todos os associados")
+    @GetMapping
     public ResponseEntity<List<AssociadoResponseDTO>> listarAssociados() {
         List<AssociadoResponseDTO> associados = associadoService.listarAssociados();
         return ResponseEntity.ok(associados);
     }
-    
-    @GetMapping(value = "/{id}", headers = "Accept=application/json")
+
+    @Operation(summary = "Busca associado pelo ID")
+    @GetMapping("/{id}")
     public ResponseEntity<AssociadoResponseDTO> buscarPorId(@PathVariable Long id) {
         try {
             AssociadoResponseDTO associado = associadoService.buscarPorId(id);
@@ -55,17 +60,21 @@ public class AssociadoRestController {
         }
     }
 
-    @PutMapping(value = "atualizar", headers = "Accept=application/json")
-    public ResponseEntity<AssociadoResponseDTO> atualizarAssociado(@RequestBody AssociadoResponseDTO requestDTO) {
+    @Operation(summary = "Atualiza associado")
+    @PutMapping("/{id}")
+    public ResponseEntity<AssociadoResponseDTO> atualizarAssociado(
+            @PathVariable Long id, 
+            @RequestBody AssociadoRequestDTO requestDTO) {
         try {
-            AssociadoResponseDTO atualizado = associadoService.atualizarAssociado(requestDTO);
+            AssociadoResponseDTO atualizado = associadoService.atualizarAssociado(id, requestDTO);
             return ResponseEntity.ok(atualizado);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
-    
-    @DeleteMapping(value = "remover/{id}", headers = "Accept=application/json")
+
+    @Operation(summary = "Remove associado pelo ID")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> removerAssociado(@PathVariable Long id) {
         try {
             associadoService.removerAssociadoPorId(id);
@@ -75,7 +84,8 @@ public class AssociadoRestController {
         }
     }
 
-    @GetMapping(value = "/cpf/{cpf}", headers = "Accept=application/json")
+    @Operation(summary = "Busca associado pelo CPF")
+    @GetMapping("/cpf/{cpf}")
     public ResponseEntity<AssociadoResponseDTO> buscarPorCpf(@PathVariable String cpf) {
         try {
             AssociadoResponseDTO associado = associadoService.buscarPorCpf(cpf);

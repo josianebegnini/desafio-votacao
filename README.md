@@ -169,6 +169,9 @@ Contabilizar votos
 - GET 
 http://localhost:8080/api/votacao/contabilizar/1
   O serviço de contabilização irá postar uma mensagem no topico resultado-votacao
+  
+# desafio-votacao Swagger
+http://localhost:8080/swagger-ui/index.html
 
 
 

@@ -16,7 +16,7 @@ public class PautaMapper {
 
     public static PautaResponseDTO toDTO(Pauta pauta) {
         PautaResponseDTO dto = new PautaResponseDTO();
-        dto.setId(pauta.getIdPauta());
+        dto.setId(pauta.getId());
         dto.setTitulo(pauta.getTitulo());
         dto.setDescricao(pauta.getDescricao());
         dto.setFechada(pauta.isFechada());

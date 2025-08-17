@@ -29,8 +29,8 @@ public class Votacao {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_votacao")
-    private Long idVotacao;
+    @Column(name = "id")
+    private Long id;
 
     @Column(name = "data_voto", nullable = false)
     private LocalDateTime dtVoto;
@@ -53,12 +53,13 @@ public class Votacao {
         }
     }
 
-	public Long getIdVotacao() {
-		return idVotacao;
+
+	public Long getId() {
+		return id;
 	}
 
-	public void setIdVotacao(Long idVotacao) {
-		this.idVotacao = idVotacao;
+	public void setId(Long id) {
+		this.id = id;
 	}
 
 	public LocalDateTime getDtVoto() {

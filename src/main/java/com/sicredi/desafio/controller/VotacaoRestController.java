@@ -1,10 +1,7 @@
 package com.sicredi.desafio.controller;
 
 import java.util.List;
-import java.util.Optional;
 
-import org.hibernate.service.spi.ServiceException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -18,80 +15,85 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.sicredi.desafio.dto.request.VotacaoRequestDTO;
 import com.sicredi.desafio.exceptions.VotacaoException;
-import com.sicredi.desafio.model.Sessao;
 import com.sicredi.desafio.model.Votacao;
 import com.sicredi.desafio.service.ContabilizaService;
-import com.sicredi.desafio.service.SessaoService;
 import com.sicredi.desafio.service.VotacaoService;
 
 import io.swagger.v3.oas.annotations.Operation;
 
 @RestController
-@RequestMapping("/api/v1/votacao/")
+@RequestMapping("/api/v1/votacoes")
 public class VotacaoRestController {
 
-    private VotacaoService votacaoService;
-    private SessaoService sessaoService;
-    private ContabilizaService contabilizarService;
+    private final VotacaoService votacaoService;
+    private final ContabilizaService contabilizarService;
 
-    @Autowired
-    public VotacaoRestController(VotacaoService votacaoService, SessaoService sessaoService, ContabilizaService contabilizarService) {
+    public VotacaoRestController(VotacaoService votacaoService, ContabilizaService contabilizarService) {
         this.votacaoService = votacaoService;
-        this.sessaoService = sessaoService;
         this.contabilizarService = contabilizarService;
     }
-    
-    @Operation(summary = "Votar na sessão")
-    @PostMapping(value = "votar", headers = "Accept=application/json")
+
+    @Operation(summary = "Votar em uma sessão")
+    @PostMapping
     public ResponseEntity<?> votar(@RequestBody VotacaoRequestDTO votacaoDto) {
-    	try {
-    		votacaoService.votar(votacaoDto);
-    		return ResponseEntity.ok("Voto registrado com sucesso.");
-    	} catch (VotacaoException ve) {
-    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ve.getMessage());
-    	} catch (ServiceException se) {
-    		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao votar: " + se.getMessage());
-    	} catch (Exception e) {
-    		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao votar: " + e.getMessage());
-
-    	}	
+        try {
+            votacaoService.votar(votacaoDto);
+            return ResponseEntity.status(HttpStatus.CREATED).body("Voto registrado com sucesso.");
+        } catch (VotacaoException ve) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ve.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao votar: " + e.getMessage());
+        }
     }
 
-    @GetMapping("/contabilizar/{idSessao}")
-    public  ResponseEntity<?> contabilizarVotacao(@PathVariable Long idSessao) {
-    	try {
-    
-    		String resultado = contabilizarService.contabilizar(idSessao);
-    		
-    		return ResponseEntity.ok("Sessão de votação encerrada para contabilização. Resultado postado na fila resultado-votacao. " + resultado);
-    	} catch (ServiceException se) {
-    		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao contabilizar votos: " + se.getMessage());
-    	} catch (Exception e) {
-    		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao contabilizar votos: " + e.getMessage());
-    	}
-        
-    }
-    
-    
-    @GetMapping(value = "listar", headers = "Accept=application/json")
-    public List<Votacao> listarVotacoes() {
-        return votacaoService.listarVotacoes();
-    }
-    
-    @GetMapping(value = "listarPorId/{id}", headers = "Accept=application/json")
-    public Optional<Votacao> buscarPorId(@PathVariable Long id) {
-        return votacaoService.buscarPorId(id);
+    @Operation(summary = "Lista todas as votações")
+    @GetMapping
+    public ResponseEntity<List<Votacao>> listarVotacoes() {
+        return ResponseEntity.ok(votacaoService.listarVotacoes());
     }
 
-    @PutMapping(value = "atualizar", headers = "Accept=application/json")
-    public void atualizarVotacao(@RequestBody Votacao votacao) {
-    	votacaoService.atualizarVotacao(votacao);
+    @Operation(summary = "Busca votação por ID")
+    @GetMapping("/{id}")
+    public ResponseEntity<Votacao> buscarPorId(@PathVariable Long id) {
+        return votacaoService.buscarPorId(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
-    @DeleteMapping(value = "remover/{id}", headers = "Accept=application/json")
-    public void removerVotacao(@PathVariable Long id) {
-    	votacaoService.removerVotacaoPorId(id);
+    @Operation(summary = "Atualiza Votação")
+    @PutMapping("/{id}")
+    public ResponseEntity<?> atualizarVotacao(@PathVariable Long id, @RequestBody Votacao votacao) {
+        try {
+            votacaoService.atualizarVotacao(id, votacao);
+            return ResponseEntity.ok("Votação atualizada com sucesso.");
+        } catch (VotacaoException ve) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ve.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao atualizar voto: " + e.getMessage());
+        }
     }
 
+    @Operation(summary = "Remove Votação")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> removerVotacao(@PathVariable Long id) {
+        try {
+            votacaoService.removerVotacaoPorId(id);
+            return ResponseEntity.noContent().build();
+        } catch (VotacaoException ve) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ve.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao remover voto: " + e.getMessage());
+        }
+    }
 
+    @Operation(summary = "Contabiliza os votos")
+    @PostMapping("/sessoes/{idSessao}/contabilizar")
+    public ResponseEntity<?> contabilizarVotacao(@PathVariable Long idSessao) {
+        try {
+            String resultado = contabilizarService.contabilizar(idSessao);
+            return ResponseEntity.ok("Sessão de votação encerrada e votos contabilizados. Resultado: " + resultado);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao contabilizar votos: " + e.getMessage());
+        }
+    }
 }

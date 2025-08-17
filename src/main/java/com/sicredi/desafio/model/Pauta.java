@@ -20,8 +20,8 @@ public class Pauta {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_pauta")
-    private Long idPauta;
+    @Column(name = "id")
+    private Long id;
 
     @Column(nullable = false)
     private String titulo;
@@ -42,13 +42,19 @@ public class Pauta {
         this.fechada = false;
     }
 
-	public Long getIdPauta() {
-		return idPauta;
+
+
+	public Long getId() {
+		return id;
 	}
 
-	public void setIdPauta(Long idPauta) {
-		this.idPauta = idPauta;
+
+
+	public void setId(Long id) {
+		this.id = id;
 	}
+
+
 
 	public String getTitulo() {
 		return titulo;

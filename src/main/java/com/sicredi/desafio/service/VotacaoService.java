@@ -48,7 +48,7 @@ public class VotacaoService {
 }
     
     public void validaAssociadoJaVotou(Sessao sessao, Associado associado) {
-        Optional<Votacao> votacao = repository.findBySessaoIdAndAssociadoCpf(sessao, associado);
+        Optional<Votacao> votacao = repository.findBySessaoIdAndAssociadoCpf(sessao.getId(), associado.getCpf());
 
         if (votacao.isPresent()) {
             logger.info("Associado já votou na sessão: " + associado.getCpf());
@@ -147,12 +147,19 @@ public class VotacaoService {
     		throw new ServiceException("Erro ao buscar votacao por ID: " + e.getMessage(), e);
     	}
     }
-    public void atualizarVotacao(Votacao votacao){
-    	try {
-    		repository.save(votacao);
-    	} catch (DataAccessException e) {
-    		throw new ServiceException("Erro ao atualizar votacao: " + e.getMessage(), e);
-    	}
+    public void atualizarVotacao(Long id, Votacao votacaoAtualizada) {
+        try {
+            Votacao votacaoExistente = repository.findById(id)
+                    .orElseThrow(() -> new VotacaoException("Votação não encontrada com ID: " + id));
+
+            // Atualiza apenas os campos permitidos
+            votacaoExistente.setVoto(votacaoAtualizada.getVoto());
+            votacaoExistente.setDtVoto(LocalDateTime.now()); // atualiza a data do voto
+
+            repository.save(votacaoExistente);
+        } catch (DataAccessException e) {
+            throw new ServiceException("Erro ao atualizar votacao: " + e.getMessage(), e);
+        }
     }
     public void removerVotacaoPorId(Long id){
     	try {

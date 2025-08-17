@@ -1,0 +1,55 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0002_create_sessao_table
+      author: josiane
+      changes:
+        - createTable:
+            tableName: sessao
+            columns:
+              - column:
+                  name: id
+                  type: BIGSERIAL
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: nome
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: descricao
+                  type: VARCHAR(1000)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: data_inicio
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: data_fim
+                  type: TIMESTAMP
+              - column:
+                  name: duracao
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+              - column:
+                  name: fechada
+                  type: BOOLEAN
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+              - column:
+                  name: pauta_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: sessao
+            baseColumnNames: pauta_id
+            referencedTableName: pauta
+            referencedColumnNames: id_pauta
+            constraintName: fk_sessao_pauta

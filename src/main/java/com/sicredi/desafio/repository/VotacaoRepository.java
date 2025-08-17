@@ -12,7 +12,8 @@ import com.sicredi.desafio.model.Votacao;
 
 @Repository
 public interface VotacaoRepository extends JpaRepository<Votacao, Long> {
-    List<Votacao> findBySessaoId(Long sessaoId);               // todos os votos de uma sessão
-    List<Votacao> findByAssociadoCpf(String cpf);             // todos os votos de um associado
-    Optional<Votacao> findBySessaoIdAndAssociadoCpf(Sessao sessao, Associado associado); // voto específico
+
+    List<Votacao> findBySessaoId(Long idSessao);
+    List<Votacao> findByAssociadoCpf(String cpf);
+    Optional<Votacao> findBySessaoIdAndAssociadoCpf(Long idSessao, String cpf);
 }

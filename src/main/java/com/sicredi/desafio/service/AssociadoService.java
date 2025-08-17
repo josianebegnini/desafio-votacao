@@ -61,13 +61,16 @@ public class AssociadoService {
         }
     }
 
-    public AssociadoResponseDTO atualizarAssociado(AssociadoResponseDTO dto) {
+    public AssociadoResponseDTO atualizarAssociado(Long id, AssociadoRequestDTO dto) {
         try {
-        	Associado associado = new Associado();
-        	associado.setId(dto.getId());
-        	associado.setCpf(dto.getCpf());
-        	associado.setNome(dto.getNome());
-            Associado atualizado = repository.save(associado);
+            Associado associadoExistente = repository.findById(id)
+                .orElseThrow(() -> new ServiceException("Associado não encontrado com ID: " + id));
+
+            associadoExistente.setNome(dto.getNome());
+            associadoExistente.setCpf(dto.getCpf());
+
+            Associado atualizado = repository.save(associadoExistente);
+
             return new AssociadoResponseDTO(atualizado.getId(), atualizado.getNome(), atualizado.getCpf());
         } catch (DataAccessException e) {
             throw new ServiceException("Erro ao atualizar associado: " + e.getMessage(), e);

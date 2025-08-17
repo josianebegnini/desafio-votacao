@@ -71,7 +71,7 @@ class VotacaoServiceTest {
         request.setVoto("SIM");
 
         Pauta pauta = mock(Pauta.class);
-        when(pauta.getIdPauta()).thenReturn(1L);
+        when(pauta.getId()).thenReturn(1L);
 
         Sessao sessao = mock(Sessao.class);
         when(sessao.getPauta()).thenReturn(pauta);
@@ -87,7 +87,7 @@ class VotacaoServiceTest {
     @Test
     void testVotar_SessaoAberta() {
         Pauta pauta = mock(Pauta.class);
-        when(pauta.getIdPauta()).thenReturn(1L);
+        when(pauta.getId()).thenReturn(1L);
 
         Sessao sessao = mock(Sessao.class);
         when(sessao.getPauta()).thenReturn(pauta);
@@ -114,7 +114,7 @@ class VotacaoServiceTest {
     @Test
     void testVotar_AssociadoJaVotou() {
         Pauta pauta = mock(Pauta.class);
-        when(pauta.getIdPauta()).thenReturn(1L);
+        when(pauta.getId()).thenReturn(1L);
 
         Sessao sessao = mock(Sessao.class);
         when(sessao.getPauta()).thenReturn(pauta);

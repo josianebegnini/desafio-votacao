@@ -14,7 +14,7 @@ public class VotacaoMapper {
 
     public static VotacaoResponseDTO toDTO(Votacao votacao) {
         VotacaoResponseDTO dto = new VotacaoResponseDTO();
-        dto.setIdVotacao(votacao.getIdVotacao());
+        dto.setIdVotacao(votacao.getId());
         dto.setDtVoto(votacao.getDtVoto());
         dto.setVoto(votacao.getVoto());
         dto.setSessaoDto(SessaoMapper.toDTO(votacao.getSessao()));
