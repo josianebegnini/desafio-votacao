@@ -43,16 +43,15 @@ public class Votacao {
     private Sessao sessao;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "cpf", nullable = false)
+    @JoinColumn(name = "associado_id", nullable = false)
     private Associado associado;
-
+    
     @PrePersist
     public void prePersist() {
         if (this.dtVoto == null) {
             this.dtVoto = LocalDateTime.now();
         }
     }
-
 
 	public Long getId() {
 		return id;

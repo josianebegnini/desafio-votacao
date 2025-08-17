@@ -20,7 +20,7 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: voto
-                  type: CHAR(1)
+                  type: CHAR(1) # ou VARCHAR(3) se quiser "SIM"/"NAO"
                   constraints:
                     nullable: false
               - column:
@@ -37,7 +37,7 @@ databaseChangeLog:
             baseTableName: votacao
             baseColumnNames: sessao_id
             referencedTableName: sessao
-            referencedColumnNames: id_sessao
+            referencedColumnNames: id
             constraintName: fk_votacao_sessao
         - addForeignKeyConstraint:
             baseTableName: votacao

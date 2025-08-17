@@ -1,6 +1,6 @@
-package com.sicredi.desafio.model;
+package com.sicredi.desafio.dto.response;
 
-public class ResultadoVotacao {
+public class ResultadoVotacaoDTO {
 	private int totalPositivo;
 	private int totalNegativo;
 	private Long sessaoId;

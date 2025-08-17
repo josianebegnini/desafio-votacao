@@ -10,10 +10,10 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
 import com.google.gson.Gson;
+import com.sicredi.desafio.dto.response.ResultadoVotacaoDTO;
 import com.sicredi.desafio.dto.response.SessaoResponseDTO;
 import com.sicredi.desafio.exceptions.SessaoException;
 import com.sicredi.desafio.mapper.SessaoMapper;
-import com.sicredi.desafio.model.ResultadoVotacao;
 import com.sicredi.desafio.model.Sessao;
 import com.sicredi.desafio.model.Votacao;
 import com.sicredi.desafio.repository.SessaoRepository;
@@ -47,7 +47,7 @@ public class ContabilizaService {
  		    
 			encerraSessaoParaContagemDeVotos(sessaoDto);
 
-			ResultadoVotacao resultado = contabilizaVotosDaSessao(sessaoDto);
+			ResultadoVotacaoDTO resultado = contabilizaVotosDaSessao(sessaoDto);
 			
 			retorno = publicaNoTopicoResultadoVotacao(resultado);
 
@@ -61,14 +61,14 @@ public class ContabilizaService {
 		return retorno;
 	}
 
-	private String publicaNoTopicoResultadoVotacao(ResultadoVotacao resultado) {
+	private String publicaNoTopicoResultadoVotacao(ResultadoVotacaoDTO resultado) {
 		String mensagem = montaMensagem(resultado);
 		produce.enviaMensagem("resultado-votacao", mensagem);
 		return mensagem;
 	}
 	
-	private ResultadoVotacao contabilizaVotosDaSessao(SessaoResponseDTO sessaoDto) {
-		ResultadoVotacao resultado = new ResultadoVotacao();
+	private ResultadoVotacaoDTO contabilizaVotosDaSessao(SessaoResponseDTO sessaoDto) {
+		ResultadoVotacaoDTO resultado = new ResultadoVotacaoDTO();
 		List<Votacao> votos = votacaoRepo.findBySessaoId(sessaoDto.getIdSessao());
 		int contagemVotosSim = 0;
 		int contagemVotosNao = 0;
@@ -76,10 +76,10 @@ public class ContabilizaService {
 		for (Votacao votacao : votos) {
 			String votoNormalizado = Normalizer.normalize(votacao.getVoto(), Normalizer.Form.NFD)
 					.replaceAll("\\p{M}", "");
-			if ("sim".equalsIgnoreCase(votacao.getVoto())) {
+			if ("s".equalsIgnoreCase(votacao.getVoto())) {
 				contagemVotosSim++;
 			}
-			if ("nao".equalsIgnoreCase(votoNormalizado)) {
+			if ("n".equalsIgnoreCase(votoNormalizado)) {
 				contagemVotosNao++;
 			}
 		}
@@ -88,7 +88,7 @@ public class ContabilizaService {
 		resultado.setSessaoId(sessaoDto.getIdSessao());
 		return resultado;
 	}
-	private String montaMensagem(ResultadoVotacao resultado) {
+	private String montaMensagem(ResultadoVotacaoDTO resultado) {
 		Gson gson = new Gson();
 		String json = gson.toJson(resultado);
 		logger.info("Mensagem JSON gerada: {}", json);

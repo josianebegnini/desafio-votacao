@@ -22,6 +22,12 @@ spring:
       ddl-auto: update  # cria/atualiza as tabelas automaticamente
     show-sql: true      # opcional, para ver as queries geradas
 
+  zipkin:
+    base-url: http://zipkin:9411 
+  sleuth:
+    sampler:
+      probability: 1.0  # envia todos os spans
+
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
     clear-check-sums: true

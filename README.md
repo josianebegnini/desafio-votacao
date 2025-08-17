@@ -116,11 +116,14 @@ O aplicativo envia uma requisição POST para a url informada e com o body defin
 
 # desafio-votacao
 
-#
-Payloads
+## Swagger
+http://localhost:8080/swagger-ui/index.html
+
+
+## Payloads
 Cadastrar uma nova pauta
 - POST 
-http://localhost:8080/api/pauta/cadastrar
+http://localhost:8080/api/v1/pautas
 {
   "titulo": "Pauta 1",
   "descricao": "Descrição da pauta 1"
@@ -128,7 +131,8 @@ http://localhost:8080/api/pauta/cadastrar
 
 Cadastrar associado
 - POST 
-http://localhost:8080/api/associado/cadastrar
+http://localhost:8080/api/v1/associados
+
 {
   "cpf": "26981994070",
   "nome": "Associado Um"
@@ -136,42 +140,25 @@ http://localhost:8080/api/associado/cadastrar
 
 Abrir uma sessão de votação em uma pauta (a sessão de votação deve ficar aberta por um tempo determinado na chamada de abertura ou 1 minuto por default) 
 - POST 
-http://localhost:8080/api/sessao/abrirSessao
+http://localhost:8080/api/v1/sessoes
 {
-  "nome": "Nome da Sessão",
-  "descricao": "Descrição da Sessão",
-  "dtSessao": "2025-08-11T10:00:00Z",
-  "duracao": 0,
-  "fechada": false,
-  "pauta": {
-    "idPauta": 1
-  }
+  "nome": "Sessão de Votação Pauta 1",
+  "descricao": "Sessão destinada à votação da Pauta 1",
+  "duracao": 30,
+  "pautaId": 1
 }
 
 Receber votos dos associados em pautas (os votos são apenas 'Sim'/'Não'. Cada associado é identificado por um id único e pode votar apenas uma vez por pauta);
 - POST 
-http://localhost:8080/api/votacao/votar
+http://localhost:8080/api/v1/votacoes
 {
-  "dtVoto": "2025-08-11T18:41:00Z",
-  "voto": "SIM",
-  "sessao": {
-    "idSessao": 1,
-    "pauta": {
-      "idPauta": 1
-    }
-  },
-  "associado": {
-    "cpf": "26981994070"
-  }
+  "cpfAssociado": "26981994070",
+  "sessaoId": 1,
+  "voto": "S"
 }
 
-Contabilizar votos
-- GET 
-http://localhost:8080/api/votacao/contabilizar/1
-  O serviço de contabilização irá postar uma mensagem no topico resultado-votacao
+Contabilizar irá postar uma mensagem no topico resultado-votacao
+- POST
+http://localhost:8080/api/v1/votacoes/sessoes/1/contabilizar
   
-# desafio-votacao Swagger
-http://localhost:8080/swagger-ui/index.html
-
-
-
+  
