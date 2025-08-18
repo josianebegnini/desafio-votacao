@@ -198,30 +198,6 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
-            <!-- Plugin para gerar env.properties a partir do .env -->
-	        <plugin>
-	            <groupId>org.codehaus.mojo</groupId>
-	            <artifactId>exec-maven-plugin</artifactId>
-	            <version>3.1.0</version>
-	            <executions>
-	                <execution>
-	                    <id>generate-env-properties</id>
-	                    <phase>initialize</phase>
-	                    <goals>
-	                        <goal>exec</goal>
-	                    </goals>
-	                    <configuration>
-	                        <executable>sh</executable>
-	                        <arguments>
-	                            <argument>-c</argument>
-	                            <argument>
-	                                echo '# Arquivo gerado automaticamente a partir do .env' &gt; env.properties &amp;&amp; grep -v '^\s*#' .env | grep -v '^\s*$' &gt;&gt; env.properties
-	                            </argument>
-	                        </arguments>
-	                    </configuration>
-	                </execution>
-	            </executions>
-	        </plugin>
 			<plugin>
 			    <groupId>org.codehaus.mojo</groupId>
 			    <artifactId>properties-maven-plugin</artifactId>
