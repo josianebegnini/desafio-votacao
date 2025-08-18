@@ -31,17 +31,19 @@ services:
 
   postgres-dev:
     image: postgres:15
+    profiles: ["dev"]
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
-      - "5435:5432" # host:container
+      - "5435:5432"
     volumes:
       - postgres_dev_data:/var/lib/postgresql/data
 
   postgres-test:
     image: postgres:15
+    profiles: ["test"]
     environment:
       POSTGRES_DB: ${POSTGRES_TEST_DB}
       POSTGRES_USER: ${POSTGRES_TEST_USER}
@@ -53,6 +55,7 @@ services:
 
   postgres-prod:
     image: postgres:15
+    profiles: ["prod"]
     environment:
       POSTGRES_DB: ${POSTGRES_PROD_DB}
       POSTGRES_USER: ${POSTGRES_PROD_USER}

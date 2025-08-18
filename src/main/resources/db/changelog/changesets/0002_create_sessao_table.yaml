@@ -51,5 +51,5 @@ databaseChangeLog:
             baseTableName: sessao
             baseColumnNames: pauta_id
             referencedTableName: pauta
-            referencedColumnNames: id_pauta
+            referencedColumnNames: id
             constraintName: fk_sessao_pauta
